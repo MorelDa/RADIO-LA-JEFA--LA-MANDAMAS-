@@ -693,7 +693,8 @@
   }
 
   playBtn.addEventListener('click', togglePlay);
-  miniPlay.addEventListener('click', togglePlay);
+  // El play de la barra chica lo atiende el delegador de #mini-bar (mas arriba).
+  // Si lo dejamos enlazado aqui, corre togglePlay DOS veces y no hace nada.
 
   reloadBtn.addEventListener('click', () => {
     const wasPlaying = !audio.paused;
@@ -727,7 +728,7 @@
     }
   }
   muteBtn.addEventListener('click', toggleMute);
-  miniVolBtn.addEventListener('click', toggleMute);
+  // Igual que el play: el volumen lo atiende el delegador de #mini-bar.
 
   audio.addEventListener('waiting', () => { statusMsg.textContent = 'Cargando…'; });
   audio.addEventListener('playing', () => { statusMsg.textContent = 'Transmitiendo en vivo'; });
