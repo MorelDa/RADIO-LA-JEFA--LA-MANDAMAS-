@@ -820,8 +820,10 @@
   window.__pwaShowUpdate = mostrarAviso;
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').then(reg => {
-        // Revisa si hay una nueva versión disponible y la activa de inmediato
+      // updateViaCache:'none' es lo clave: por defecto el navegador puede
+      // seguir usando el sw.js viejo de su propia cache y nunca enterarse
+      // de que hay version nueva. Con esto lo vuelve a pedir siempre.
+      navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => {
         reg.addEventListener('updatefound', () => {
           const newWorker = reg.installing;
           if (!newWorker) return;
@@ -833,6 +835,7 @@
             }
           });
         });
+
         // Si al abrir la pagina ya habia una version descargada, avisar igual
         reg.update();
         if (reg.waiting && navigator.serviceWorker.controller) {
@@ -840,6 +843,18 @@
           mostrarAviso(reg.waiting);
         }
       }).catch(err => console.warn('SW registration failed:', err));
+
+      // Revisar la version seguido. A veces el celular deja la app abierta
+      // horas y no vuelve a pedir sw.js; con esto se entera igual.
+      function revisarActualizacion(){
+        navigator.serviceWorker.getRegistration().then(function(r){
+          if (r) r.update();
+        }).catch(function(){});
+      }
+      setInterval(revisarActualizacion, 60000);
+      document.addEventListener('visibilitychange', function(){
+        if (!document.hidden) revisarActualizacion();
+      });
     });
 
     // Si el service worker cambia (nueva versión tomó control), recarga una vez

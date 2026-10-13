@@ -8,7 +8,7 @@
   ---------------------------------------------------------------
 */
 /* v2 = logo nuevo + eslogan "La Que Manda". Subir esto cada vez que cambian los logos. */
-const CACHE_VERSION = 'v2-la-que-manda-logo-nuevo';
+const CACHE_VERSION = 'v3-actualizacion-forzada';
 const CACHE_NAME = `la-jefa-v-${CACHE_VERSION}`;
 
 // Archivos "estáticos" que se pueden guardar en caché sin problema
