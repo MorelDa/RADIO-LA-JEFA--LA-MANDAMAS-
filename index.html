@@ -1,18 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<script>
-  // Detecta muy pronto si la app corre instalada (standalone) para saltar
-  // el "toca para iniciar" del intro en esos casos.
-  (function(){
-    var standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-    if(standalone){ document.documentElement.setAttribute('data-standalone','1'); }
-  })();
-</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>La Jefa — En Vivo | La Mandamás Llanos Orientales</title>
-<meta name="description" content="La Jefa — La Mandamás de los Llanos Orientales, transmitiendo en vivo las 24 horas.">
+<title>La Jefa — En Vivo | La Que Manda</title>
+<meta name="description" content="La Jefa — La Que Manda, de los Llanos Orientales, transmitiendo en vivo las 24 horas.">
 
 <!-- ============ PWA ============ -->
 <link rel="manifest" href="manifest.json">
@@ -32,17 +24,17 @@
 <!-- ============ Open Graph / compartir en redes ============ -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="La Jefa">
-<meta property="og:title" content="La Jefa — En Vivo | La Mandamás Llanos Orientales">
-<meta property="og:description" content="La Mandamás de los Llanos Orientales, transmitiendo en vivo las 24 horas.">
+<meta property="og:title" content="La Jefa — En Vivo | La Que Manda">
+<meta property="og:description" content="La Que Manda, de los Llanos Orientales, transmitiendo en vivo las 24 horas.">
 <meta property="og:image" content="icons/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <!-- IMPORTANTE: reemplaza esta URL por tu dominio real una vez publicado -->
-<meta property="og:url" content="https://radio-la-jefa-la-mandamas.vercel.app/">
+<meta property="og:url" content="https://TU-DOMINIO.vercel.app/">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="La Jefa — En Vivo">
-<meta name="twitter:description" content="La Mandamás de los Llanos Orientales, transmitiendo en vivo las 24 horas.">
+<meta name="twitter:description" content="La Que Manda, de los Llanos Orientales, transmitiendo en vivo las 24 horas.">
 <meta name="twitter:image" content="icons/og-image.jpg">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -95,54 +87,6 @@
     transition:opacity .55s ease, visibility .55s ease;
   }
   #splash-screen.hide{opacity:0;visibility:hidden;pointer-events:none;}
-
-  /* Las animaciones de entrada del splash quedan en pausa hasta que el
-     audio de intro arranca (ver #tap-to-start / .intro-playing) */
-  .splash-logo-wrap,
-  .splash-brand,
-  .splash-tagline,
-  .splash-bar,
-  .splash-bar span{
-    animation-play-state:paused;
-  }
-  #splash-screen.intro-playing .splash-logo-wrap,
-  #splash-screen.intro-playing .splash-brand,
-  #splash-screen.intro-playing .splash-tagline,
-  #splash-screen.intro-playing .splash-bar,
-  #splash-screen.intro-playing .splash-bar span{
-    animation-play-state:running;
-  }
-
-  /* Overlay "toca para iniciar" — necesario porque los navegadores
-     bloquean el audio con sonido si no hay un toque/click del usuario */
-  .tap-overlay{
-    position:absolute;inset:0;z-index:5;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;
-    gap:16px;
-    background:rgba(9,12,16,.6);
-    backdrop-filter:blur(2px);
-    cursor:pointer;
-    opacity:0;visibility:hidden;pointer-events:none;
-    transition:opacity .3s ease, visibility .3s ease;
-  }
-  .tap-overlay.show{opacity:1;visibility:visible;pointer-events:auto;}
-  .tap-pulse{
-    width:64px;height:64px;border-radius:50%;
-    background:rgba(26,215,253,.15);
-    border:2px solid var(--cyan);
-    display:flex;align-items:center;justify-content:center;
-    animation:tap-pulse-anim 1.6s ease-in-out infinite;
-  }
-  .tap-pulse svg{width:26px;height:26px;color:var(--cyan);}
-  @keyframes tap-pulse-anim{
-    0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(26,215,253,.5);}
-    50%{transform:scale(1.08);box-shadow:0 0 0 14px rgba(26,215,253,0);}
-  }
-  .tap-label{
-    font-family:'Archivo Black',sans-serif;
-    font-size:14px;letter-spacing:.06em;color:var(--ink);
-    text-transform:uppercase;
-  }
   .splash-logo-wrap{
     width:156px;height:156px;border-radius:50%;
     display:flex;align-items:center;justify-content:center;
@@ -491,29 +435,51 @@
     .social-row a{width:38px;height:38px;}
     header{padding-top:14px;padding-bottom:8px;}
   }
-</style>
+
+/* ---------- AVISO DE ACTUALIZACION DE LA APP (PWA) ----------
+   Cuando entra una version nueva, el service worker queda esperando.
+   Con esto se le avisa a la persona y ella acepta el cambio: asi el logo
+   y los textos viejos se van de la app instalada. */
+.pwa-update{
+  position:fixed;left:12px;right:12px;bottom:calc(var(--mini-h) + var(--safe-b) + 14px);
+  z-index:80;display:flex;align-items:center;gap:12px;
+  padding:13px 15px;border-radius:14px;
+  background:var(--bg-1);border:1px solid var(--lime);
+  box-shadow:0 12px 30px rgba(0,0,0,.55);
+  transform:translateY(140%);opacity:0;
+  transition:transform .32s cubic-bezier(.32,.72,.24,1), opacity .32s;
+}
+.pwa-update.show{transform:translateY(0);opacity:1;}
+.pwa-update .pu-txt{flex:1;min-width:0;font-size:12.5px;line-height:1.45;color:var(--ink);}
+.pwa-update .pu-txt b{display:block;font-size:13px;letter-spacing:.02em;color:var(--lime);}
+.pwa-update button{
+  flex-shrink:0;padding:10px 16px;border:none;border-radius:10px;cursor:pointer;
+  background:var(--lime);color:#0b0b0b;
+  font-family:'Archivo',sans-serif;font-weight:800;font-size:11.5px;
+  letter-spacing:.08em;text-transform:uppercase;
+}
+.pwa-update button:active{transform:scale(.95);}
+.pwa-update .pu-x{
+  flex-shrink:0;width:30px;height:30px;border-radius:8px;padding:0;
+  background:none;border:1px solid var(--line);color:var(--ink-dim);
+  font-size:17px;line-height:1;display:flex;align-items:center;justify-content:center;
+}
+@media(max-width:420px){
+  .pwa-update{flex-wrap:wrap;}
+  .pwa-update button{width:100%;}
+}</style>
 </head>
 <body>
 
 <!-- ============ SPLASH / INTRO ============ -->
 <div id="splash-screen">
-  <div id="tap-to-start" class="tap-overlay">
-    <div class="tap-pulse">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11.24V7.5a2.5 2.5 0 0 1 5 0v3.74"/><path d="M14 10.5V6a2.5 2.5 0 0 1 5 0v8a7 7 0 0 1-7 7h-1a7 7 0 0 1-6.29-3.94l-1.7-3.4a2 2 0 0 1 3.6-1.8L7 14"/></svg>
-    </div>
-    <div class="tap-label">Toca para iniciar</div>
-  </div>
   <div class="splash-logo-wrap">
     <img src="icons/icon-192.png" alt="La Jefa">
   </div>
   <div class="splash-brand">LA JEFA</div>
-  <div class="splash-tagline">La Mandamás · Llanos Orientales</div>
+  <div class="splash-tagline">La Que Manda</div>
   <div class="splash-bar"><span></span></div>
 </div>
-
-<audio id="intro-audio" preload="auto" playsinline>
-  <source src="intro.mp3" type="audio/mpeg">
-</audio>
 
 <!-- ============ VISTA 1: INICIO ============ -->
 <div id="home-view">
@@ -537,13 +503,12 @@
 
   <div class="hero">
     <span class="live-pill"><span class="live-dot"></span>EN DIRECTO</span>
-    <h1>LA JEFA <span class="accent">La Mandamás</span></h1>
+    <h1>LA JEFA <span class="accent">LA QUE MANDA</span></h1>
     <p class="tagline">Llanos Orientales</p>
 
     <div class="social-row" id="social-row">
       <a href="#" target="_blank" rel="noopener" data-social="facebook" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.78-3.89 1.1 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12"/></svg></a>
       <a href="#" target="_blank" rel="noopener" data-social="whatsapp" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.38 1.26 4.8L2 22l5.44-1.36a9.9 9.9 0 0 0 4.6 1.14h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.87 9.87 0 0 0 12.04 2zm5.78 14.2c-.24.68-1.4 1.3-1.93 1.36-.5.06-1.02.28-3.42-.72-2.9-1.2-4.77-4.15-4.92-4.34-.14-.2-1.18-1.57-1.18-3 0-1.42.75-2.12 1.02-2.41.27-.29.58-.36.78-.36.2 0 .39 0 .56.01.18.01.42-.07.65.5.24.58.82 2 .89 2.15.07.14.12.32.02.51-.1.2-.15.32-.3.5-.15.17-.31.38-.44.51-.15.15-.3.31-.13.6.17.29.75 1.24 1.62 2.01 1.12 1 2.06 1.31 2.35 1.46.29.15.46.13.63-.08.17-.2.72-.84.91-1.13.19-.29.38-.24.63-.15.25.1 1.61.76 1.89.9.28.14.46.21.53.33.07.12.07.68-.17 1.35z"/></svg></a>
-      <a href="#" target="_blank" rel="noopener" data-social="website" aria-label="Sitio web"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></a>
     </div>
   </div>
 </div>
@@ -585,7 +550,7 @@
 
     <div class="station-info">
       <h1>La Jefa</h1>
-      <p>La Mandamás · Llanos Orientales</p>
+      <p>La Que Manda</p>
       <div id="track-title">Cargando transmisión…</div>
     </div>
 
@@ -626,8 +591,7 @@
     STATION_NAME: "La Jefa",
     SOCIAL: {
       facebook:  "https://www.facebook.com/lajefallanosorientales?mibextid=ZbWKwL",
-      whatsapp:  "https://wa.me/573123181061",
-      website:   "https://sites.google.com/view/la-jefa-la-mandamas/inicio"
+      whatsapp:  "https://wa.me/573123181061"
     }
   };
 
@@ -693,53 +657,32 @@
     miniEq.classList.toggle('paused', !isPlaying);
   }
 
-  // Evita que el navegador reutilice una conexión vieja/fallida en caché:
-  // cada vez que cargamos el stream le agregamos un parámetro único.
-  function freshStreamUrl(){
-    const sep = CONFIG.STREAM_URL.includes('?') ? '&' : '?';
-    return CONFIG.STREAM_URL + sep + '_=' + Date.now();
-  }
-
   function loadStream(){
     if(!CONFIG.STREAM_URL){
       statusMsg.textContent = 'Sin transmisión configurada';
       trackTitle.textContent = 'Agrega la URL del stream en CONFIG.STREAM_URL';
       return false;
     }
-    audio.src = freshStreamUrl();
-    audio.load();
+    audio.src = CONFIG.STREAM_URL;
     return true;
-  }
-
-  function attemptPlay(isRetry){
-    audio.play()
-      .then(() => {
-        statusMsg.textContent = 'Transmitiendo en vivo';
-        trackTitle.textContent = CONFIG.STATION_NAME + ' — En Vivo';
-        miniSubtitle.textContent = 'Sonando en vivo';
-        setPlayingUI(true);
-      })
-      .catch(() => {
-        if(!isRetry){
-          // Primer intento falló (a veces por una conexión en caché) —
-          // reintenta una vez de inmediato con una URL nueva antes de rendirse.
-          statusMsg.textContent = 'Reintentando…';
-          miniSubtitle.textContent = 'Reintentando…';
-          loadStream();
-          setTimeout(() => attemptPlay(true), 400);
-        } else {
-          statusMsg.textContent = 'No se pudo conectar al stream';
-          miniSubtitle.textContent = 'No se pudo conectar';
-        }
-      });
   }
 
   function togglePlay(){
     if(audio.paused){
-      loadStream();
+      if(!audio.src && !loadStream()) return;
       statusMsg.textContent = 'Conectando…';
       miniSubtitle.textContent = 'Conectando…';
-      attemptPlay(false);
+      audio.play()
+        .then(() => {
+          statusMsg.textContent = 'Transmitiendo en vivo';
+          trackTitle.textContent = CONFIG.STATION_NAME + ' — En Vivo';
+          miniSubtitle.textContent = 'Sonando en vivo';
+          setPlayingUI(true);
+        })
+        .catch(() => {
+          statusMsg.textContent = 'No se pudo conectar al stream';
+          miniSubtitle.textContent = 'No se pudo conectar';
+        });
     } else {
       audio.pause();
       statusMsg.textContent = 'Pausado';
@@ -749,21 +692,18 @@
   }
 
   playBtn.addEventListener('click', togglePlay);
-  // OJO: mini-play y mini-vol-btn YA se manejan dentro del listener
-  // delegado de #mini-bar (más abajo). No agregar aquí un segundo
-  // listener directo sobre ellos: al estar dentro de #mini-bar, un
-  // solo toque disparaba togglePlay()/toggleMute() DOS veces (una por
-  // el listener directo y otra por el delegado), lo que causaba que
-  // al pausar, se reprodujera otra vez de inmediato.
+  miniPlay.addEventListener('click', togglePlay);
 
   reloadBtn.addEventListener('click', () => {
     const wasPlaying = !audio.paused;
     audio.pause();
     setPlayingUI(false);
+    audio.load();
     if(loadStream() && wasPlaying){
       statusMsg.textContent = 'Reconectando…';
-      miniSubtitle.textContent = 'Reconectando…';
-      attemptPlay(false);
+      audio.play()
+        .then(() => { statusMsg.textContent = 'Transmitiendo en vivo'; setPlayingUI(true); })
+        .catch(() => { statusMsg.textContent = 'No se pudo reconectar'; });
     }
   });
 
@@ -786,10 +726,13 @@
     }
   }
   muteBtn.addEventListener('click', toggleMute);
-  // miniVolBtn se maneja en el listener delegado de #mini-bar (ver abajo)
+  miniVolBtn.addEventListener('click', toggleMute);
 
   audio.addEventListener('waiting', () => { statusMsg.textContent = 'Cargando…'; });
   audio.addEventListener('playing', () => { statusMsg.textContent = 'Transmitiendo en vivo'; });
+  audio.addEventListener('error',   () => { statusMsg.textContent = 'Error al conectar con el stream'; });
+
+  loadStream();
 
   /* ================================================================
      BLOQUEO DE SCROLL / REBOTE — asegura que la pantalla de inicio
@@ -804,62 +747,13 @@
   }, { passive:false });
 
   /* ================================================================
-     SPLASH / INTRO — reproduce el audio de bienvenida sincronizado
-     con la animación de entrada, y entra al sitio cuando termina.
-
-     - Los navegadores bloquean audio con sonido sin un gesto del
-       usuario, así que mostramos "toca para iniciar" primero.
-     - Si la app ya está instalada (modo standalone / abierta desde
-       el ícono en el móvil), saltamos ese botón e intentamos
-       reproducir directo; si el navegador igual lo bloquea, el botón
-       aparece como respaldo.
+     SPLASH SCREEN — se oculta cuando la página termina de cargar
      ================================================================ */
-  const splash      = document.getElementById('splash-screen');
-  const tapToStart   = document.getElementById('tap-to-start');
-  const introAudio   = document.getElementById('intro-audio');
-  const isStandalone = document.documentElement.getAttribute('data-standalone') === '1';
-
-  let introFinished = false;
-  function hideSplash(){
-    if(introFinished) return;
-    introFinished = true;
-    splash.classList.add('hide');
-  }
-
-  function playIntro(){
-    splash.classList.add('intro-playing');
-    introAudio.currentTime = 0;
-    const playPromise = introAudio.play();
-    if(playPromise && playPromise.catch){
-      playPromise
-        .then(() => { tapToStart.classList.remove('show'); })
-        .catch(() => {
-          // El navegador igual bloqueó el audio: mostramos el botón
-          // como respaldo para que el usuario dé el toque necesario.
-          tapToStart.classList.add('show');
-        });
-    } else {
-      tapToStart.classList.remove('show');
-    }
-  }
-
-  introAudio.addEventListener('ended', hideSplash);
-  introAudio.addEventListener('error', hideSplash);
-
-  tapToStart.addEventListener('click', () => {
-    tapToStart.classList.remove('show');
-    playIntro();
-  });
-
-  if(isStandalone){
-    playIntro();
-  } else {
-    tapToStart.classList.add('show');
-  }
-
-  // Respaldo: si algo falla (audio no carga, no dispara "ended", etc.)
-  // no dejamos al usuario atascado en el splash.
-  setTimeout(hideSplash, 12000);
+  const splash = document.getElementById('splash-screen');
+  function hideSplash(){ splash.classList.add('hide'); }
+  window.addEventListener('load', () => { setTimeout(hideSplash, 1200); });
+  // Respaldo por si el evento load tarda demasiado
+  setTimeout(hideSplash, 3500);
 
   /* ================================================================
      PWA — instalación y service worker
@@ -891,18 +785,60 @@
     installBtn.classList.remove('show');
   }
 
+  /* ---------- AVISO DE ACTUALIZACION DE LA APP ----------
+     Mientras haya un service worker esperando, el sitio sigue sirviendo la
+     version vieja (con el logo viejo). Con este aviso la persona acepta y
+     el cambio se aplica al instante. */
+  window.__pwaWaiting = null;
+
+  function mostrarAviso(worker){
+    var box = document.getElementById('pwaUpdate');
+    if (!box) return;
+    box.hidden = false;
+    requestAnimationFrame(function(){ box.classList.add('show'); });
+    var ok = document.getElementById('pwaUpdateOk');
+    var no = document.getElementById('pwaUpdateNo');
+    if (ok && !ok.dataset.listening){
+      ok.dataset.listening = '1';
+      ok.addEventListener('click', function(){
+        ok.disabled = true;
+        // avisar al service worker que tome control ya y recargar una vez
+        if (worker) worker.postMessage({ type: 'SKIP_WAITING' });
+        else if (navigator.serviceWorker.controller) navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+        setTimeout(function(){ location.reload(); }, 600);
+      });
+    }
+    if (no && !no.dataset.listening){
+      no.dataset.listening = '1';
+      no.addEventListener('click', function(){
+        box.classList.remove('show');
+        setTimeout(function(){ box.hidden = true; }, 320);
+      });
+    }
+  }
+
+  window.__pwaShowUpdate = mostrarAviso;
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js').then(reg => {
         // Revisa si hay una nueva versión disponible y la activa de inmediato
         reg.addEventListener('updatefound', () => {
           const newWorker = reg.installing;
+          if (!newWorker) return;
           newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'activated') {
-              // La nueva versión ya está activa; el próximo reload la usará
+            // "installed" con un worker ya activo = hay version nueva esperando
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              window.__pwaWaiting = newWorker;
+              mostrarAviso(newWorker);
             }
           });
         });
+        // Si al abrir la pagina ya habia una version descargada, avisar igual
+        reg.update();
+        if (reg.waiting && navigator.serviceWorker.controller) {
+          window.__pwaWaiting = reg.waiting;
+          mostrarAviso(reg.waiting);
+        }
       }).catch(err => console.warn('SW registration failed:', err));
     });
 
@@ -915,6 +851,13 @@
     });
   }
 </script>
+
+  <!-- Aviso de actualizacion de la app instalada -->
+  <div class="pwa-update" id="pwaUpdate" hidden>
+    <div class="pu-txt"><b>Hay una version nueva</b>Actualiza para tener el logo y los datos al dia.</div>
+    <button type="button" id="pwaUpdateOk">Actualizar</button>
+    <button type="button" class="pu-x" id="pwaUpdateNo" aria-label="Ahora no">&times;</button>
+  </div>
 
 </body>
 </html>

@@ -7,8 +7,9 @@
   de quedarse con una copia vieja guardada en caché.
   ---------------------------------------------------------------
 */
-const CACHE_VERSION = 'v1';
-const CACHE_NAME = `la-jefa-${CACHE_VERSION}`;
+/* v2 = logo nuevo + eslogan "La Que Manda". Subir esto cada vez que cambian los logos. */
+const CACHE_VERSION = 'v2-la-que-manda-logo-nuevo';
+const CACHE_NAME = `la-jefa-v-${CACHE_VERSION}`;
 
 // Archivos "estáticos" que se pueden guardar en caché sin problema
 const PRECACHE_ASSETS = [
@@ -21,7 +22,8 @@ const PRECACHE_ASSETS = [
   './icons/apple-touch-icon.png',
   './icons/favicon-32x32.png',
   './icons/favicon-16x16.png',
-  './icons/favicon.ico'
+  './icons/favicon.ico',
+  './icons/og-image.jpg'
 ];
 
 self.addEventListener('install', (event) => {
@@ -86,4 +88,12 @@ self.addEventListener('fetch', (event) => {
       return cached || fetchPromise;
     })
   );
+});
+
+/* El boton "Actualizar" de la pagina manda este mensaje: asi el service
+   worker nuevo toma control enseguida, sin esperar a que se cierre la app. */
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
