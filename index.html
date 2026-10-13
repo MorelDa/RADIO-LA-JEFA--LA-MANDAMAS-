@@ -468,30 +468,7 @@
   .pwa-update{flex-wrap:wrap;}
   .pwa-update button{width:100%;}
 }
-/* ---------- BOTON ACTUALIZAR ----------
-   Siempre visible. Al apretarlo borra TODAS las caches (donde quedan
-   trancados los logos viejos), desregistra el service worker y recarga.
-   Asi la app se pone al dia sin tener que desinstalarla. */
-.btn-actualizar{
-  position:fixed;
-  top:calc(var(--safe-t) + 10px);
-  right:12px;
-  z-index:90;
-  display:inline-flex;align-items:center;gap:8px;
-  padding:11px 17px;border-radius:999px;cursor:pointer;
-  background:var(--lime);color:#0b0b0b;border:none;
-  font-family:'Archivo',sans-serif;font-weight:800;font-size:11.5px;
-  letter-spacing:.09em;text-transform:uppercase;white-space:nowrap;
-  box-shadow:0 8px 22px rgba(0,0,0,.45);
-  transition:transform .16s cubic-bezier(.32,.72,.24,1), box-shadow .2s;
-}
-.btn-actualizar:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,0,0,.55);}
-.btn-actualizar:active{transform:scale(.95);}
-.btn-actualizar svg{width:15px;height:15px;flex-shrink:0;}
-.btn-actualizar.busy{opacity:.6;pointer-events:none;}
-@media(max-width:520px){
-  .btn-actualizar{padding:10px 13px;font-size:10.5px;gap:6px;}
-}</style>
+</style>
 </head>
 <body>
 
@@ -809,72 +786,6 @@
     installBtn.classList.remove('show');
   }
 
-  /* ---------- BOTON ACTUALIZAR ----------
-     Apretarlo deja la app como recien instalada:
-       1. avisa al service worker que se libere
-       2. borra TODAS las caches (ahi quedan trancados los logos viejos)
-       3. desregistra el service worker anterior
-       4. recarga saltandose la cache del navegador
-     Es lo unico que garantiza que el logo viejo desaparezca. */
-  (function(){
-    var btn = document.getElementById('btnActualizar');
-    var txt = document.getElementById('btnActualizarTxt');
-    if (!btn) return;
-
-    btn.addEventListener('click', function(){
-      if (btn.classList.contains('busy')) return;
-      btn.classList.add('busy');
-      if (txt) txt.textContent = 'Actualizando...';
-
-      var pasos = [];
-      // Promise.resolve() envuelve el resultado: si un paso devuelve nada o falla,
-      // el siguiente igual se ejecuta. Antes se caia toda la actualizacion en silencio.
-      function seguir(fn){ return Promise.resolve().then(fn).catch(function(){ /* si un paso falla, seguimos con el siguiente */ }); }
-
-      pasos.push(function(){
-        return seguir(function(){
-          var sw = (typeof navigator !== 'undefined' && navigator.serviceWorker) ? navigator.serviceWorker : null;
-          if (!sw || !sw.getRegistrations) return;
-          return sw.getRegistrations().then(function(regs){
-            regs.forEach(function(r){
-              if (r.waiting) r.waiting.postMessage({ type: 'SKIP_WAITING' });
-              if (r.active)  r.active.postMessage({ type: 'SKIP_WAITING' });
-            });
-            // desregistrar el service worker viejo
-            return Promise.all(regs.map(function(r){ return r.unregister(); }));
-          });
-        });
-      });
-
-      // borrar todas las caches: aqui es donde quedan los logos viejos
-      pasos.push(function(){
-        return seguir(function(){
-          var c = (typeof caches !== 'undefined') ? caches : null;
-          if (!c || !c.keys || !c.delete) return;
-          return c.keys().then(function(keys){
-            return Promise.all(keys.map(function(k){ return caches.delete(k); }));
-          });
-        });
-      });
-
-      // limpiar el almacenamiento local/ sesion que pueda guardar versiones viejas
-      pasos.push(function(){
-        return seguir(function(){
-          try { localStorage.removeItem('la-jefa-version'); } catch(e){}
-        });
-      });
-
-      // recargar saltandose la cache del navegador
-      pasos.push(function(){
-        setTimeout(function(){
-          var url = location.pathname + '?r=' + Date.now();
-          location.replace(url);
-        }, 350);
-      });
-
-      pasos.reduce(function(p, f){ return p.then(f); }, Promise.resolve());
-    });
-  })();
   /* ---------- AVISO DE ACTUALIZACION DE LA APP ----------
      Mientras haya un service worker esperando, el sitio sigue sirviendo la
      version vieja (con el logo viejo). Con este aviso la persona acepta y
@@ -964,11 +875,7 @@
     <button type="button" class="pu-x" id="pwaUpdateNo" aria-label="Ahora no">&times;</button>
   </div>
 
-  <!-- Boton para actualizar la app a mano: borra la cache vieja y recarga -->
-  <button type="button" class="btn-actualizar" id="btnActualizar">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
-    <span id="btnActualizarTxt">Actualizar</span>
-  </button>
+
 
 </body>
 </html>
